@@ -20,7 +20,7 @@ void optinit(optstack *st)
 
 void optpush(optstack *st,char input)
 {
-    //prevent overflow
+    // prevent overflow
     if(st->top < 99) st->opts[st->top++] = input;
     //cout << "push: " << input << " num: " << st->top << endl;
 }
@@ -37,16 +37,22 @@ char optpop(optstack *st)
 
 void numinit(numstack *st)
 {
-
+    st->top = 0;
 }
 
 void numpush(numstack *st,float input)
 {
-
+    st->nums[st->top++] = input;
+    //cout << "push: " << input << endl;
 }
 float numpop(numstack *st)
 {
-    return 0;
+    // prevent overflow
+    if(st->top){
+	//cout << "pop: " << st->nums[st->top - 1] << endl;
+	return st->nums[--(st->top)];
+    }
+    else return 0;
 }
 
 // use to determine the priority of the operators
@@ -84,7 +90,31 @@ string infixtopostfix(string s,optstack *st)
 
 float calculate(string s,numstack *st,float *value)
 {
-    return 0;
+    for(int i = 0; i < s.length(); i++){
+	float a, b;
+	switch (s[i]){
+	    case '+':
+		a = numpop(st); b = numpop(st);
+		numpush(st, b + a);
+		break;
+	    case '-':
+		a = numpop(st); b = numpop(st);
+		numpush(st, b - a);
+		break;
+	    case '*':
+		a = numpop(st); b = numpop(st);
+		numpush(st, b * a);
+		break;
+	    case '/':
+		a = numpop(st); b = numpop(st);
+		numpush(st, b - a);
+		break;
+	    default:
+		numpush(st, value[s[i] - 'A']);
+		break;
+	}
+    }
+    return numpop(st);
 }
 
 int main()
